@@ -18,32 +18,61 @@ if (!getSessions()) {
 
 const sessionLimit = 20;
 
+const isCronJobSet = () => {
+    return !!(global as unknown as {
+        cronJobSet: boolean | undefined
+    }).cronJobSet;
+}
+
+if (!isCronJobSet()) {
+    (global as unknown as {
+        cronJobSet: boolean | undefined
+    }).cronJobSet = true;
+
+    cron.schedule('*/1 * * * * *', () => {
+        const sessions = getSessions();
+        sessions.forEach((sessionData, session) => {
+            const now = new Date();
+            const diff = now.getSeconds() - sessionData.lastUpdate.getSeconds();
+            // console.log("diff " + diff);
+            const max = 10;
+            // console.log("max " + max)
+            if (diff > max) {
+                //console.log("session " + session + " a écoulé")
+                deleteSession(session);
+            }
+        });
+    });
+}
+
 export const newSession = () => {
     if (getSessions().size > sessionLimit) {
         throw new Error("Session limit reached");
     }
 
-    const session = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const idLength = Math.pow(2, 5);
+
+    const session = (() => {
+        let session = "";
+        //const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (let i = 0; i < idLength; i++) {
+            if (Math.random() > 0.8) {
+                // chinois
+                session += String.fromCharCode(0x4e00 + Math.random() * (0x9fff-0x4e00+1));
+            } else {
+                // arabe
+                session += String.fromCharCode(0x0600 + Math.random() * (0x06ff-0x0600+1));
+            }
+        }
+
+        return session;
+    })();
     const data = {
         fen: new Chess().fen(),
         lastUpdate: new Date()
     } as SessionData;
     getSessions().set(session, data);
-
-    const newRef = <T> (obj: T) => {
-        return {
-            current: obj
-        };
-    }
-
-    const task = newRef(null as any);
-    task.current = cron.schedule('*/0.05 * * * *', () => {
-        const now = new Date();
-        if (getSessions().get(session)!.lastUpdate.getTime() + new Date(0, 0, 0, 0, 1 , 0).getTime() < now.getTime()) {
-            getSessions().delete(session);
-            task.current.stop();
-        }
-    });
 
     return session;
 }
@@ -64,4 +93,17 @@ export const setSessionFen = (session: string, fen: string) => {
         fen,
         lastUpdate: new Date()
     });
+}
+
+const deleteSession = (session: string) => {
+    getSessions().delete(session);
+}
+
+export const getAllSessions = () => {
+    const sessions = getSessions();
+    const allSessions = [] as string[];
+    sessions.forEach((session, key) => {
+        allSessions.push(key);
+    });
+    return allSessions;
 }

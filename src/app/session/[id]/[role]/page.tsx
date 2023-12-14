@@ -36,11 +36,16 @@ const updateChessToFen = (chess: Chess, fen: string) => {
     return false;
 }
 
-const Page = ({ params: { id }} : {
+const Page = ({ params: { id, role }} : {
     params: {
-        id: string
+        id: string,
+        role: string
     }
 }) => {
+    id = decodeURI(id);
+    if (role !== 'w' && role !== 'b') {
+        redirect("/");
+    }
     const router = useRouter();
     const chess = useRef<Chess | null>(null);
 
@@ -80,7 +85,7 @@ const Page = ({ params: { id }} : {
             })
         }, 250);
         return () => clearInterval(interval);
-    }, [chess, fen, forceUpdate, session]);
+    }, [chess, fen, forceUpdate, router, session]);
 
     return (
         <main className="min-h-screen w-full">
@@ -93,8 +98,15 @@ const Page = ({ params: { id }} : {
                                 showBoardNotation={true}
                                 animationDuration={1000}
                                 position={fen}
+                                boardOrientation={role === 'w' ? 'white' : 'black'}
+                                allowDragOutsideBoard={false}
                                 onPieceDrop={(from, to, piece) => {
                                     assert(chess.current);
+
+                                    // check if the move is for opponent
+                                    if (chess.current.turn() !== role) return false;
+                                    const pieceColor = piece[0];
+                                    if (role !== pieceColor) return false;
 
                                     const move = chess.current!.move({from, to, promotion: "q"});
                                     console.log(move);
