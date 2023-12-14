@@ -1,50 +1,28 @@
-'use client'
+import {newSession} from "@/app/lib/sessionManagement";
+import {redirect} from "next/navigation";
 
-import Image from 'next/image'
-import Chessboard from "@/app/components/chess/Chessboard";
-import {Chess} from 'chess.ts'
-import {useCallback, useEffect, useMemo, useState} from "react";
+export const metadata = {
+    title: "nextChess"
+}
 
-export default function Home() {
-    const chess = useMemo(() => new Chess(), []);
-    // const [emptyState, setEmptyState] = useState({});
-    const [fen, setFen] = useState(chess.fen());
-    const forceUpdate = useCallback(() => {
-        setFen(chess.fen());
-    }, [chess]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            forceUpdate();
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [fen, forceUpdate]);
-
+const Page = () => {
     return (
-        <main className="min-h-screen w-full">
-            <div className={"max-h-screen max-w-screen sm:w-2/3 lg:w-1/2 2xl:w-2/5"}>
-                <div className={"flex items-center justify-center"}>
-                    <Chessboard
-                        showBoardNotation={true}
-                        animationDuration={1000}
-                        position={fen}
-                        onPieceDrop={(from, to, piece) => {
-                            const move = chess.move({from, to, promotion: "q"});
-                            console.log(move);
-                            if (move) {
-                                try {
-                                    return true;
-                                } finally {
-                                    forceUpdate();
-                                }
-                            }
-
-                            return false;
-                        }}
-                    />
+        <main className={"h-screen w-screen"}>
+            <div className={"container"}>
+                <div className={"grid grid-cols-12"}>
+                    <div className={"col-start-3 col-span-9"}>
+                        <form action={async (formData) => {
+                            'use server'
+                            const sessionId = newSession();
+                            redirect(`/session/${sessionId}`);
+                        }}>
+                            <button type={"submit"} className={"btn"}>Créature de session</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </main>
     )
 }
+
+export default Page;

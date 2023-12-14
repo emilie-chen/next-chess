@@ -15,8 +15,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="fr">
+      <body className={inter.className}>
+      <nav className="fixed w-full bg-black h-16 px-4 flex text-white z-50 align-middle">
+          <div className="text-lg my-auto">
+              nextChess
+          </div>
+      </nav>
+      <div className={"pt-20"} />
+      {children}
+      </body>
     </html>
   )
 }
