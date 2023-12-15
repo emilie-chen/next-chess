@@ -37,7 +37,7 @@ const Page = () => {
                                             getAllSessions().map((session, i) => {
                                                 return (<Fragment key={i}>
                                                     <tr className="hover">
-                                                        <td>{session.substring(0, 10)}</td>
+                                                        <td>{session}</td>
                                                         <td><Link href={`/session/${session}/w`} className={"btn "}>
                                                             <div className={"h-2/3 w-2/3"}>
                                                                 <ArrowLongRightIcon className={"h-full w-full"}/>

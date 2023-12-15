@@ -1,5 +1,6 @@
 import {Chess} from "chess.ts";
 const cron = require('node-cron') as any;
+import {v4 as uuid} from 'uuid'
 
 type SessionData = {
     fen: string,
@@ -50,23 +51,25 @@ export const newSession = () => {
         throw new Error("Session limit reached");
     }
 
-    const idLength = Math.pow(2, 5);
-
     const session = (() => {
-        let session = "";
-        //const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        // const idLength = Math.pow(2, 5);
+        // let session = "";
+        // //const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        //
+        // for (let i = 0; i < idLength; i++) {
+        //     if (Math.random() > 0.8) {
+        //         // chinois
+        //         session += String.fromCharCode(0x4e00 + Math.random() * (0x9fff-0x4e00+1));
+        //     } else {
+        //         // arabe
+        //         session += String.fromCharCode(0x0600 + Math.random() * (0x06ff-0x0600+1));
+        //     }
+        // }
+        //
+        // return session;
 
-        for (let i = 0; i < idLength; i++) {
-            if (Math.random() > 0.8) {
-                // chinois
-                session += String.fromCharCode(0x4e00 + Math.random() * (0x9fff-0x4e00+1));
-            } else {
-                // arabe
-                session += String.fromCharCode(0x0600 + Math.random() * (0x06ff-0x0600+1));
-            }
-        }
-
-        return session;
+        // uuid
+        return uuid();
     })();
     const data = {
         fen: new Chess().fen(),
